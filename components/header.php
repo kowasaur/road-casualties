@@ -92,8 +92,14 @@
         <h2>Site navigation</h2>
         <ul>
             <li><a href=".">Home</a></li>
-            <li><a href="404.html">Login</a></li>
-            <li><a href="register.php">Register</a></li>
+            <?php 
+                if ($_SESSION["loggedin"]) { ?>
+                    <li><a href="logout.php">Logout</a></li>
+                <?php } else { ?>
+                    <li><a href="404.html">Login</a></li>
+                    <li><a href="register.php">Register</a></li>
+                <?php }
+            ?>
         </ul>
     </div>
 </div>

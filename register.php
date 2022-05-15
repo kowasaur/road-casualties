@@ -1,5 +1,6 @@
 <?php
-// TODO: server side validation
+// TODO: server side validation and error handling
+session_start();
 require_once "database.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -23,6 +24,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_param($types, ...$params);
 
         if($stmt->execute()){
+            $_SESSION["loggedin"] = true;
+            $_SESSION["id"] = $mysqli->insert_id; // should be the id from auto increment
             header("location: index.php"); // Redirect to login page
         } else{
             echo "Oops! Something went wrong. Please try again later.";
@@ -44,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </head>
 
     <body>
-        <?php require_once "components/header.html"; ?>
+        <?php require_once "components/header.php"; ?>
 
         <div id="page-container">
             <div class="max-width">
