@@ -1,3 +1,4 @@
+<?php require_once "components/is_admin.php"; ?>
 <!--[if lt IE 9
     ]><script type="text/javascript">
         jQuery && jQuery.transformer({ addClasses: true });
@@ -93,6 +94,9 @@
         <ul>
             <li><a href=".">Home</a></li>
             <?php 
+                if ($is_admin) { ?>
+                    <li><a href="admin.php">Admin</a></li>
+                <?php }
                 if ($_SESSION["loggedin"]) { ?>
                     <li><a href="logout.php">Logout</a></li>
                 <?php } else { ?>
