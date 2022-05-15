@@ -1,3 +1,41 @@
+<?php
+// TODO: server side validation
+require_once "database.php";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = trim($_POST["email"]);
+    $password = trim($_POST["password"]);
+    $phone = preg_replace("/[^0-9]/", "", $_POST["phone"]); // only keep numbers in the string
+    // https://stackoverflow.com/questions/33993461/php-remove-all-non-numeric-characters-from-a-string
+
+    if (empty($phone)) {
+        $sql = "INSERT INTO users (email, password, is_admin) VALUES (?, ?, false)";
+        $types = "ss";
+        $params = [$email, password_hash($password, PASSWORD_BCRYPT)];
+    } else {
+        $sql = "INSERT INTO users (email, password, phone_number, is_admin) VALUES (?, ?, ?, false)";
+        $types = "sss";
+        $params = [$email, password_hash($password, PASSWORD_BCRYPT), $phone];
+    }
+
+    if ($stmt = $mysqli->prepare($sql)) {
+        // Bind variables to the prepared statement as parameters
+        $stmt->bind_param($types, ...$params);
+
+        if($stmt->execute()){
+            header("location: index.php"); // Redirect to login page
+        } else{
+            echo "Oops! Something went wrong. Please try again later.";
+        }
+
+        $stmt->close();
+    }
+
+    $mysqli->close();
+}
+
+?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en-AU">
     <head>
@@ -26,7 +64,9 @@
                                 <p>Create an account to receive alerts.</p>
                                 <p>Already have an account? Login <a href="404.html">here</a></p>
 
-                                <form class="form">
+                                <form class="form" method="post" 
+                                    action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
+                                >
                                     <label for="email">Email Address</label>
                                     <input type="email" name="email" id="email" required>
 
@@ -34,9 +74,10 @@
                                     <input type="password" name="password" id="password" required>
 
                                     <label for="phone">Mobile Number</label>
+                                    <!-- phone number can have spaces or - between the nums -->
                                     <input type="tel" name="phone" id="phone" 
-                                        placeholder="0414 123 456" 
-                                        pattern="[0-9]{4}[- ]*[0-9]{3}[- ]*[0-9]{3}"
+                                        placeholder="0414 123 456"
+                                        pattern="[0-9]{4}[- ]*[0-9]{3}[- ]*[0-9]{3}" 
                                     />
                                     
                                     <button>Register</button>
