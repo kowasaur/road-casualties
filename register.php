@@ -65,23 +65,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <h1>Register</h1>
 
                                 <p>Create an account to receive alerts.</p>
-                                <p>Already have an account? Login <a href="404.html">here</a></p>
+                                <p>Already have an account? Login <a href="login.php">here</a></p>
 
                                 <form class="form" method="post" 
                                     action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                                 >
-                                    <label for="email">Email Address</label>
-                                    <input type="email" name="email" id="email" required>
+                                    <?php require_once "components/credentials.html"; ?>
 
-                                    <label for="password">Password</label>
-                                    <input type="password" name="password" id="password" required>
-
-                                    <label for="phone">Mobile Number</label>
-                                    <!-- phone number can have spaces or - between the nums -->
-                                    <input type="tel" name="phone" id="phone" 
-                                        placeholder="0414 123 456"
-                                        pattern="[0-9]{4}[- ]*[0-9]{3}[- ]*[0-9]{3}" 
-                                    />
+                                    <div>
+                                        <label for="phone">Mobile Number</label>
+                                        <!-- phone number can have spaces or - between the nums -->
+                                        <input type="tel" name="phone" id="phone" 
+                                            placeholder="0414 123 456"
+                                            pattern="[0-9]{4}[- ]*[0-9]{3}[- ]*[0-9]{3}" 
+                                        />
+                                    </div>
                                     
                                     <button>Register</button>
                                 </form>

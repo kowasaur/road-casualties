@@ -1,8 +1,21 @@
-.form > * {
+.form > div {
+    margin-bottom: 1em;
+}
+
+.form > div > * {
     display: block;
 }
 
-.form > input {
-    margin-bottom: 1em;
+.form > div > input {
     width: 25em;
+}
+
+.form > div > div {
+    display: flex;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.form > div > div > input {
+    margin-right: 3px;
 }
