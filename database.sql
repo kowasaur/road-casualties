@@ -2,8 +2,9 @@ CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     email VARCHAR(255) UNIQUE NOT NULL,
     password CHAR(60) NOT NULL,
-    phone_number CHAR(10)
-    -- TODO: address
+    phone_number CHAR(10),
+    is_admin BOOLEAN NOT NULL
+    -- TODO: address and name
 );
 
 CREATE TABLE road_casualties (
