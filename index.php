@@ -14,7 +14,7 @@
                     <div id="breadcrumbs">
                         <h2>You are here:</h2>
                         <ol>
-                            <li><a href="/">Home</a></li>
+                            <li><a href=".">Home</a></li>
                         </ol>
                     </div>
                     <div id="content">
