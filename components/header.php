@@ -94,10 +94,10 @@
         <ul>
             <li><a href=".">Home</a></li>
             <?php 
-                if ($is_admin) { ?>
+                if (isset($is_admin) && $is_admin) { ?>
                     <li><a href="admin.php">Admin</a></li>
                 <?php }
-                if ($_SESSION["loggedin"]) { ?>
+                if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"]) { ?>
                     <li><a href="logout.php">Logout</a></li>
                 <?php } else { ?>
                     <li><a href="login.php">Login</a></li>
