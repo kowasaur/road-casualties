@@ -1,10 +1,50 @@
 <?php
 session_start();
+require_once "database.php";
+
+$total = $mysqli->query("SELECT SUM(amount) FROM road_casualties")->fetch_assoc()["SUM(amount)"];
+
+function graphData(string $group) {
+    global $mysqli;
+    $sql = "SELECT $group, SUM(amount) FROM road_casualties GROUP BY $group";
+    return $mysqli->query($sql);
+}
+
+// Convert a PHP sql result to JavaScript array
+function jsArray($rows, string $column) {
+    $rows->data_seek(0); // reset the pointer for repeat use
+    echo "[";
+    // JavaScript's type coercion means it is ok for numbers to be strings
+    while($value = $rows->fetch_array()[$column]) echo "'$value', ";
+    echo "]";
+}
+
+// Echo the JavaScript for a chart
+function jsChart(string $group, bool $is_line = false) {
+    $rows = graphData($group);
+    echo "createChart('$group-chart', ";
+    jsArray($rows, "SUM(amount)");
+    echo ", ";
+    jsArray($rows, $group);
+    echo ", '" . ucfirst($group) . "'";
+    if ($is_line) echo ", 'line'";
+    echo ");\n";
+}
+
+// Echo the html for a chart
+function htmlChart(string $group) { ?> 
+    <div class="section">
+        <h3>Road Casualties by <?php echo ucfirst($group); ?></h3>
+        <canvas id="<?php echo $group; ?>-chart"></canvas>
+    </div> 
+<?php }
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en-AU">
     <head>
         <title>Road Casualties</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
         <?php require_once "components/head.html"; ?>
     </head>
 
@@ -25,74 +65,16 @@ session_start();
                             <div class="box-sizing">
                                 <h1>Road Casualties</h1>
 
-                                <div class="section" id="section-introduction">
-                                    <p>Welcome to the CUE 3.0 template!</p>
+                                <div class="section">
+                                    <h2>Total Casualties: <?php echo $total; ?></h2>
+                                </div>
 
-                                    <p>
-                                        Use the 'Themes' and 'Page models' items from the site
-                                        navigation menu to preview different variants that are
-                                        included with the CUE template.
-                                    </p>
-                                </div>
-                                <div class="section" id="section-documentation">
-                                    <h2>Documentation</h2>
-                                    <p>The following template documentation is also available:</p>
-                                    <ul>
-                                        <li>
-                                            <a
-                                                href="../../docs/cue-template-change-log.doc"
-                                                class="download"
-                                                ><span class="title">Template change log</span
-                                                ><span class="meta"> (DOC, 72 KB)</span></a
-                                            >
-                                        </li>
-                                        <li>
-                                            <a
-                                                href="../../docs/cue-template-conformance-requirements.doc"
-                                                class="download"
-                                                ><span class="title"
-                                                    >Template conformance requirements</span
-                                                ><span class="meta"> (DOC, 95 KB)</span></a
-                                            >
-                                        </li>
-                                        <li>
-                                            Implementation advice:
-                                            <ul>
-                                                <li>
-                                                    <a
-                                                        href="../../docs/cue-how-to-customise-the-template.doc"
-                                                        class="download"
-                                                        ><span class="title"
-                                                            >How to customise the template</span
-                                                        ><span class="meta"> (DOC, 90 KB)</span></a
-                                                    >
-                                                </li>
-                                                <li>
-                                                    <a
-                                                        href="../../docs/cue-template-reset-styles.doc"
-                                                        class="download"
-                                                        ><span class="title"
-                                                            >CUE template reset styles</span
-                                                        ><span class="meta"> (DOC, 49 KB)</span></a
-                                                    >
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="section" id="section-more-info">
-                                    <h2>More information</h2>
-                                    <p>
-                                        More information is available on the
-                                        <a href="http://ssq.govnet.qld.gov.au/web/"
-                                            >Queensland Government WebCentre</a
-                                        >
-                                        or by contacting the Smart Service Queensland
-                                        <a href="onlineservices@smartservice.qld.gov.au"
-                                            >Online Services Unit</a
-                                        >.
-                                    </p>
-                                </div>
+                                <?php 
+                                    htmlChart("year");
+                                    htmlChart("severity");
+                                    htmlChart("gender");
+                                    htmlChart("road_user_type")
+                                ?>
                             </div>
                         </div>
                     </div>
@@ -102,5 +84,12 @@ session_start();
         </div>
 
         <?php require_once "components/footer.html"; ?>
+
+        <script><?php
+            jsChart("year", true);
+            jsChart("severity");
+            jsChart("gender");
+            jsChart("road_user_type");
+        ?></script>
     </body>
 </html>

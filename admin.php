@@ -6,21 +6,29 @@ if (!$is_admin) header("location: index.php");
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $path = $_FILES["csv"]["tmp_name"];
     $file = fopen($path, "r");
-    fgets($file); // ignore the headers for now
+    $successes = 0;
 
+    fgets($file); // ignore the headers for now
+    set_time_limit(300); // stop timing out
+
+    if (isset($_POST["wipe"])) $mysqli->query("DELETE FROM road_casualties");
+    else die("not implemented");
+    
     while ($line = fgets($file)) {
         $sql = "INSERT INTO road_casualties (year, region, severity, age_group, gender, road_user_type, amount) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($sql);
         // TODO: make different headers work
         $stmt->bind_param("isssssi", ...explode(",", $line));
-        if (!$stmt->execute()) {
+        if ($stmt->execute()) {
+            $successes++;
+        } else {
             echo "<h3>failed to add row</h3>";
         }
         $stmt->close();
     }
     fclose($file);
     $mysqli->close();
-    ?> <div>uploaded successfully</div> <?php
+    echo "<h1>uploaded $successes rows succesfully</h1>";
 }
 
 ?>
@@ -52,7 +60,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                                 >
                                     <div><input type="file" name="csv" id="csv" required /></div>
-                                    <div><button>Upload CSV</button></div>
+                                    <div><div>
+                                        <input type="checkbox" name="wipe" id="wipe" />
+                                        <label for="wipe">Replace Database</label>
+                                    </div></div>
+                                    <div>
+                                        <button>Upload CSV</button>
+                                        <div>Note: this may take a few minutes to upload.</div>
+                                    </div>
                                 </form>
                             </div>
                         </div>
