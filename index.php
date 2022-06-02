@@ -2,20 +2,20 @@
 session_start();
 require_once "database.php";
 
-$total = $mysqli->query("SELECT SUM(amount) FROM road_casualties")->fetch_assoc()["SUM(amount)"];
-$regions = $mysqli->query("SELECT DISTINCT region FROM road_casualties");
+// Create an option element and make it selected if the user did
+function htmlOption(string $location, string $selected_location) { ?>
+    <option <?php if ($location == $selected_location) echo "selected='selected'"; ?> 
+    value="<?php echo $location; ?>"><?php echo $location; ?></option>
+<?php }
 
-function locationOptions() {
-    global $regions;
-    $regions->data_seek(0);
-    ?> <option value="all">Queensland</option> <?php
-    while($location = $regions->fetch_array()["region"]) { ?>
-        <option value="<?php echo $location; ?>"><?php echo ucfirst($location); ?></option>
-    <?php }
+function locationOptions(array $regions, string $selected_location) {
+    htmlOption("Queensland", $selected_location);
+    foreach ($regions as $location) htmlOption($location, $selected_location);
 }
 
 function graphData(string $group) {
     global $mysqli;
+    // Adding the group in like this should be fine since the group is never user supplied
     $sql = "SELECT $group, SUM(amount) FROM road_casualties GROUP BY $group";
     return $mysqli->query($sql);
 }
@@ -54,6 +54,28 @@ function htmlChart(string $group) { ?>
     </div> 
 <?php }
 
+// Echo the html for the total casualties
+function htmlTotal(string $location) {
+    global $mysqli;
+    if ($location == "none") return; // do nothing
+    $sql = "SELECT SUM(amount) FROM road_casualties";
+    if ($location != "Queensland") $sql .= " WHERE region = '$location'";
+    $total = $mysqli->query($sql)->fetch_assoc()["SUM(amount)"]; ?>
+    <h2>Total <?php echo $location; ?> Casualties: <?php echo $total; ?></h2> <?php
+}
+
+$regions = array_column($mysqli->query("SELECT DISTINCT region FROM road_casualties")->fetch_all(), 0);
+$valid_regions = [...$regions, "Queensland", "none"];
+
+// The locations should only be invalid from trying to attack this system
+if ($_SERVER["REQUEST_METHOD"] == "POST" && in_array($_POST["location1"], $valid_regions) && in_array($_POST["location2"], $valid_regions)) {
+    $location1 = $_POST["location1"];
+    $location2 = $_POST["location2"];
+} else {
+    $location1 = "Queensland";
+    $location2 = "none";
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en-AU">
@@ -62,7 +84,7 @@ function htmlChart(string $group) { ?>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@3.8.0/dist/chart.min.js"></script>
         <?php require_once "components/head.html"; ?>
     </head>
-
+    
     <body>
         <?php require_once "components/header.php"; ?>
 
@@ -81,18 +103,19 @@ function htmlChart(string $group) { ?>
                                 <h1>Queensland Road Casualties</h1>
                                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">                                
                                     <select name="location1" id="location1">
-                                        <?php locationOptions(); ?>
+                                        <?php locationOptions($regions, $location1); ?>
                                     </select>
-                                    <select name="location2" id="location2">
-                                        <option value="none"></option>
-                                        <?php locationOptions(); ?>
-                                    </select>
+                                    <select name="location2" id="location2"><?php 
+                                        htmlOption("none", $location2);
+                                        locationOptions($regions, $location2); 
+                                    ?></select>
                                     <button>Select Locations</button>
                                 </form>
 
-                                <div class="section">
-                                    <h2>Total Casualties: <?php echo $total; ?></h2>
-                                </div>
+                                <div class="section"><?php 
+                                    htmlTotal($location1);
+                                    htmlTotal($location2);
+                                ?></div>
 
                                 <?php 
                                     htmlChart("year");
