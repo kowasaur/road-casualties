@@ -3,6 +3,16 @@ session_start();
 require_once "database.php";
 
 $total = $mysqli->query("SELECT SUM(amount) FROM road_casualties")->fetch_assoc()["SUM(amount)"];
+$regions = $mysqli->query("SELECT DISTINCT region FROM road_casualties");
+
+function locationOptions() {
+    global $regions;
+    $regions->data_seek(0);
+    ?> <option value="all">Queensland</option> <?php
+    while($location = $regions->fetch_array()["region"]) { ?>
+        <option value="<?php echo $location; ?>"><?php echo ucfirst($location); ?></option>
+    <?php }
+}
 
 function graphData(string $group) {
     global $mysqli;
@@ -19,6 +29,11 @@ function jsArray($rows, string $column) {
     echo "]";
 }
 
+// E.g. road_user_type -> Road User Type
+function capitalise(string $str) {
+    return ucwords(str_replace("_", " ", $str));
+}
+
 // Echo the JavaScript for a chart
 function jsChart(string $group, bool $is_line = false) {
     $rows = graphData($group);
@@ -26,7 +41,7 @@ function jsChart(string $group, bool $is_line = false) {
     jsArray($rows, "SUM(amount)");
     echo ", ";
     jsArray($rows, $group);
-    echo ", '" . ucfirst($group) . "'";
+    echo ", '" . capitalise($group) . "'";
     if ($is_line) echo ", 'line'";
     echo ");\n";
 }
@@ -34,7 +49,7 @@ function jsChart(string $group, bool $is_line = false) {
 // Echo the html for a chart
 function htmlChart(string $group) { ?> 
     <div class="section">
-        <h3>Road Casualties by <?php echo ucfirst($group); ?></h3>
+        <h3>Road Casualties by <?php echo capitalise($group); ?></h3>
         <canvas id="<?php echo $group; ?>-chart"></canvas>
     </div> 
 <?php }
@@ -63,7 +78,17 @@ function htmlChart(string $group) { ?>
                     <div id="content">
                         <div class="article">
                             <div class="box-sizing">
-                                <h1>Road Casualties</h1>
+                                <h1>Queensland Road Casualties</h1>
+                                <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">                                
+                                    <select name="location1" id="location1">
+                                        <?php locationOptions(); ?>
+                                    </select>
+                                    <select name="location2" id="location2">
+                                        <option value="none"></option>
+                                        <?php locationOptions(); ?>
+                                    </select>
+                                    <button>Select Locations</button>
+                                </form>
 
                                 <div class="section">
                                     <h2>Total Casualties: <?php echo $total; ?></h2>
