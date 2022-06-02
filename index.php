@@ -13,10 +13,15 @@ function locationOptions(array $regions, string $selected_location) {
     foreach ($regions as $location) htmlOption($location, $selected_location);
 }
 
-function graphData(string $group) {
+function graphData(string $group, string $location) {
     global $mysqli;
-    // Adding the group in like this should be fine since the group is never user supplied
-    $sql = "SELECT $group, SUM(amount) FROM road_casualties GROUP BY $group";
+    /* Adding the group and location in like this should be fine since the group is
+       never user supplied and the location is checked earlier to be valid*/
+    if ($location == "Queensland") {
+        $sql = "SELECT $group, SUM(amount) FROM road_casualties GROUP BY $group";
+    } else {
+        $sql = "SELECT $group, SUM(amount) FROM road_casualties WHERE region = '$location' GROUP BY $group";
+    }
     return $mysqli->query($sql);
 }
 
@@ -36,13 +41,20 @@ function capitalise(string $str) {
 
 // Echo the JavaScript for a chart
 function jsChart(string $group, bool $is_line = false) {
-    $rows = graphData($group);
+    global $location1, $location2;
+    $rows1 = graphData($group, $location1);
     echo "createChart('$group-chart', ";
-    jsArray($rows, "SUM(amount)");
-    echo ", ";
-    jsArray($rows, $group);
-    echo ", '" . capitalise($group) . "'";
-    if ($is_line) echo ", 'line'";
+    jsArray($rows1, "SUM(amount)");
+    echo ", '$location1', ";
+    jsArray($rows1, $group);
+    $type = $is_line ? "line" : "bar";
+    echo ", '" . capitalise($group) . "', '$type'";
+    if ($location2 != "none") {
+        $rows2 = graphData($group, $location2);
+        echo ", ";
+        jsArray($rows2, "SUM(amount)");
+        echo ", '$location2'";
+    }
     echo ");\n";
 }
 
