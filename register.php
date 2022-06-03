@@ -3,25 +3,24 @@
 session_start();
 require_once "database.php";
 
+function emptyToNull(string $str) {
+    return empty($str) ? null : $str;
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
     $password = trim($_POST["password"]);
-    $phone = preg_replace("/[^0-9]/", "", $_POST["phone"]); // only keep numbers in the string
     // https://stackoverflow.com/questions/33993461/php-remove-all-non-numeric-characters-from-a-string
+    $phone = emptyToNull(preg_replace("/[^0-9]/", "", $_POST["phone"])); // only keep numbers in the string
+    $first_name = emptyToNull(trim($_POST["first_name"]));
+    $last_name = emptyToNull(trim($_POST["last_name"]));
+    $address = emptyToNull(trim($_POST["address"]));
 
-    if (empty($phone)) {
-        $sql = "INSERT INTO users (email, password, is_admin) VALUES (?, ?, false)";
-        $types = "ss";
-        $params = [$email, password_hash($password, PASSWORD_BCRYPT)];
-    } else {
-        $sql = "INSERT INTO users (email, password, phone_number, is_admin) VALUES (?, ?, ?, false)";
-        $types = "sss";
-        $params = [$email, password_hash($password, PASSWORD_BCRYPT), $phone];
-    }
+    $sql = "INSERT INTO users (email, password, phone_number, first_name, last_name, address, is_admin) VALUES (?, ?, ?, ?, ?, ?, false)";
 
     if ($stmt = $mysqli->prepare($sql)) {
         // Bind variables to the prepared statement as parameters
-        $stmt->bind_param($types, ...$params);
+        $stmt->bind_param("ssssss", $email, password_hash($password, PASSWORD_BCRYPT), $phone, $first_name, $last_name, $address);
 
         if($stmt->execute()){
             $_SESSION["loggedin"] = true;
@@ -79,6 +78,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             placeholder="0414 123 456"
                                             pattern="[0-9]{4}[- ]*[0-9]{3}[- ]*[0-9]{3}" 
                                         />
+                                    </div>
+
+                                    <div>
+                                        <label for="first_name">First Name</label>
+                                        <input type="text" name="first_name" id="first_name">
+                                    </div>
+
+                                    <div>
+                                        <label for="last_name">Last Name</label>
+                                        <input type="text" name="last_name" id="last_name">
+                                    </div>
+
+                                    <div>
+                                        <label for="address">Address</label>
+                                        <input type="text" name="address" id="address">
                                     </div>
                                     
                                     <button>Register</button>

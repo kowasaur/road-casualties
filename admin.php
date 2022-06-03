@@ -9,20 +9,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $successes = 0;
 
     fgets($file); // ignore the headers for now
-    set_time_limit(300); // stop timing out
+    set_time_limit(400); // stop timing out
 
     if (isset($_POST["wipe"])) $mysqli->query("DELETE FROM road_casualties");
-    else die("not implemented");
     
     while ($line = fgets($file)) {
-        $sql = "INSERT INTO road_casualties (year, region, severity, age_group, gender, road_user_type, amount) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $sql = "REPLACE INTO road_casualties (year, region, severity, age_group, gender, road_user_type, amount) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $mysqli->prepare($sql);
         // TODO: make different headers work
         $stmt->bind_param("isssssi", ...explode(",", $line));
         if ($stmt->execute()) {
             $successes++;
         } else {
-            echo "<h3>failed to add row</h3>";
+            echo "<h3>failed to add row: $line</h3>";
         }
         $stmt->close();
     }

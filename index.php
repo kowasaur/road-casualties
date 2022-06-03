@@ -49,7 +49,7 @@ function jsChart(string $group, bool $is_line = false) {
     jsArray($rows1, $group);
     $type = $is_line ? "line" : "bar";
     echo ", '" . capitalise($group) . "', '$type'";
-    if ($location2 != "none") {
+    if ($location2 != "None") {
         $rows2 = graphData($group, $location2);
         echo ", ";
         jsArray($rows2, "SUM(amount)");
@@ -69,7 +69,7 @@ function htmlChart(string $group) { ?>
 // Echo the html for the total casualties
 function htmlTotal(string $location) {
     global $mysqli;
-    if ($location == "none") return; // do nothing
+    if ($location == "None") return; // do nothing
     $sql = "SELECT SUM(amount) FROM road_casualties";
     if ($location != "Queensland") $sql .= " WHERE region = '$location'";
     $total = $mysqli->query($sql)->fetch_assoc()["SUM(amount)"]; ?>
@@ -77,7 +77,7 @@ function htmlTotal(string $location) {
 }
 
 $regions = array_column($mysqli->query("SELECT DISTINCT region FROM road_casualties")->fetch_all(), 0);
-$valid_regions = [...$regions, "Queensland", "none"];
+$valid_regions = array_merge($regions, ["Queensland", "None"]);
 
 // The locations should only be invalid from trying to attack this system
 if ($_SERVER["REQUEST_METHOD"] == "POST" && in_array($_POST["location1"], $valid_regions) && in_array($_POST["location2"], $valid_regions)) {
@@ -85,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && in_array($_POST["location1"], $valid
     $location2 = $_POST["location2"];
 } else {
     $location1 = "Queensland";
-    $location2 = "none";
+    $location2 = "None";
 }
 
 ?>
@@ -105,9 +105,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && in_array($_POST["location1"], $valid
                 <div id="content-container">
                     <div id="breadcrumbs">
                         <h2>You are here:</h2>
-                        <ol>
-                            <li><a href=".">Home</a></li>
-                        </ol>
+                        <ol><li><a href=".">Home</a></li></ol>
                     </div>
                     <div id="content">
                         <div class="article">
@@ -118,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && in_array($_POST["location1"], $valid
                                         <?php locationOptions($regions, $location1); ?>
                                     </select>
                                     <select name="location2" id="location2"><?php 
-                                        htmlOption("none", $location2);
+                                        htmlOption("None", $location2);
                                         locationOptions($regions, $location2); 
                                     ?></select>
                                     <button>Select Locations</button>
