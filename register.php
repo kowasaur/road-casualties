@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if($stmt->execute()){
             $_SESSION["loggedin"] = true;
             $_SESSION["id"] = $mysqli->insert_id; // should be the id from auto increment
-            header("location: index.php"); // Redirect to login page
+            header("location: alerts.php"); // Redirect to alerts page
         } else{
             echo "Oops! Something went wrong. Please try again later.";
         }

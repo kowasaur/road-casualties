@@ -19,3 +19,9 @@
 .form > div > div > input {
     margin-right: 3px;
 }
+
+#site-name > a {
+    text-decoration: none;
+    font-size: 1.3em;
+    padding-top: 0.2em;
+}

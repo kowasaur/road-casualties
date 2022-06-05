@@ -70,20 +70,7 @@
                 </li>
             </ul>
 
-            <h2 id="site-name">
-                <a href="." accesskey="2">
-                    <!--[if gte IE 7
-                    ]><!--><img
-                        src="theme/site-name.png"
-                        height="28"
-                        alt="Site name"
-                    /><!--<![endif]-->
-                    <!--[if lte IE 6
-                        ]><img src="theme/site-name-ie6.png" height="28" alt="Site name"
-                    /><![endif]-->
-                    <img src="theme/site-name-print.png" height="28" class="print-version" alt="" />
-                </a>
-            </h2>
+            <h2 id="site-name"><a href="." accesskey="2">Road Casualties</a></h2>
         </div>
     </div>
 </div>
@@ -98,6 +85,7 @@
                     <li><a href="admin.php">Admin</a></li>
                 <?php }
                 if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"]) { ?>
+                    <li><a href="alerts.php">Alert Configuration</a></li>
                     <li><a href="logout.php">Logout</a></li>
                 <?php } else { ?>
                     <li><a href="login.php">Login</a></li>

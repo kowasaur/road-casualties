@@ -9,6 +9,16 @@ CREATE TABLE users (
     address VARCHAR(255)
 );
 
+CREATE TABLE alerts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    -- These two would be from Road crash locations
+    location VARCHAR(255) NOT NULL, -- Loc_Local_Government_Area
+    severity VARCHAR(255) NOT NULL, -- Crash_Severity
+    via_email BOOLEAN NOT NULL, -- email or phone number
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 CREATE TABLE road_casualties (
     year INT,
     region ENUM('Unknown', 'Brisbane', 'Central', 'South Eastern', 'Southern', 'North Coast', 'Northern', 'Far Northern'),
