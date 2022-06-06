@@ -20,6 +20,16 @@
     margin-right: 3px;
 }
 
+.alert {
+    border: 1px solid #888888;
+    margin: 1em 0;
+    padding: 1em;
+}
+
+.alert > button {
+    margin-top: 0.3em;
+}
+
 #site-name > a {
     text-decoration: none;
     font-size: 1.3em;

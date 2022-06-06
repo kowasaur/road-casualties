@@ -1,6 +1,32 @@
 <?php
 session_start();
 require_once "database.php";
+require_once "utilities.php";
+
+function htmlSelectDiv(string $label, array $options, string $selected) { ?>
+    <div>
+        <label for="<?php echo $label; ?>"><?php echo capitalise($label); ?></label>
+        <select name="<?php echo $label; ?>">
+            <?php foreach ($options as $opt) htmlOption($opt, $selected); ?>
+        </select>
+    </div>
+<?php }
+
+function htmlAlertForm() { 
+    global $mysqli; ?>
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="form alert">
+        <?php
+            // TODO: change to local government areas instead
+            $regions = uniqueColumnValues($mysqli, "region");
+            array_unshift($regions, "None");
+            htmlSelectDiv("location", $regions, "Brisbane");
+            htmlSelectDiv("severity", uniqueColumnValues($mysqli, "severity"), "Fatality");
+            htmlSelectDiv("send_via", ["Email", "SMS"], "Email");
+        ?>
+        <input type="hidden" name="alert_id" value="id from database">
+        <button>Update Alert</button>
+    </form>
+<?php }
 
 // TODO: ensure the alert id passed in is allowed to be modified by the user
 
@@ -36,29 +62,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="box-sizing">
                                 <h1>Alert Configuration</h1>
 
-                                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="form">
-                                    <div>
-                                        <label for="location">Location</label>
-                                        <select name="location">
-                                            <option value="bruh">home</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="severity">Severity</label>
-                                        <select name="severity">
-                                            <option value=":)">will literally kill you</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="via_email">Send Via</label>
-                                        <select name="via_email">
-                                            <option value="true">Email</option>
-                                            <option value="false">SMS</option>
-                                        </select>
-                                    </div>
-                                    <input type="hidden" name="alert_id" value="id from database">
-                                    <button>Update Alert</button>
-                                </form>
+                                <?php
+                                    htmlAlertForm();
+                                    htmlAlertForm();
+                                    htmlAlertForm();
+                                ?>
                                 
                             </div>
                         </div>

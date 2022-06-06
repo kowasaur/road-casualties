@@ -1,12 +1,7 @@
 <?php
 session_start();
 require_once "database.php";
-
-// Create an option element and make it selected if the user did
-function htmlOption(string $location, string $selected_location) { ?>
-    <option <?php if ($location == $selected_location) echo "selected='selected'"; ?> 
-    value="<?php echo $location; ?>"><?php echo $location; ?></option>
-<?php }
+require_once "utilities.php";
 
 function locationOptions(array $regions, string $selected_location) {
     htmlOption("Queensland", $selected_location);
@@ -32,11 +27,6 @@ function jsArray($rows, string $column) {
     // JavaScript's type coercion means it is ok for numbers to be strings
     while($value = $rows->fetch_array()[$column]) echo "'$value', ";
     echo "]";
-}
-
-// E.g. road_user_type -> Road User Type
-function capitalise(string $str) {
-    return ucwords(str_replace("_", " ", $str));
 }
 
 // Echo the JavaScript for a chart
@@ -76,7 +66,7 @@ function htmlTotal(string $location) {
     <h2>Total <?php echo $location; ?> Casualties: <?php echo $total; ?></h2> <?php
 }
 
-$regions = array_column($mysqli->query("SELECT DISTINCT region FROM road_casualties")->fetch_all(), 0);
+$regions = uniqueColumnValues($mysqli, "region");
 $valid_regions = array_merge($regions, ["Queensland", "None"]);
 
 // The locations should only be invalid from trying to attack this system
