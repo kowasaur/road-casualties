@@ -25,7 +25,7 @@ function jsArray($rows, string $column) {
     $rows->data_seek(0); // reset the pointer for repeat use
     echo "[";
     // JavaScript's type coercion means it is ok for numbers to be strings
-    while($value = $rows->fetch_array()[$column]) echo "'$value', ";
+    while($value = $rows->fetch_assoc()[$column]) echo "'$value', ";
     echo "]";
 }
 
