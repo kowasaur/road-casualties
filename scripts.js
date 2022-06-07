@@ -3,6 +3,15 @@ function toggleShowPassword() {
     checkbox.type = checkbox.type === "password" ? "text" : "password";
 }
 
+function alertLocationChange(form_id) {
+    const form = document.getElementById(form_id);
+    const divs = form.querySelectorAll("div");
+    const new_location = divs[0].querySelector("select").value;
+    const display = new_location === "None" ? "none" : "block";
+    divs[1].style.display = display;
+    divs[2].style.display = display;
+}
+
 const DATA_CONSTS = { fill: false, tension: 0.1 };
 
 function createChart(id, data1, key1, labels, group, type, data2, key2) {

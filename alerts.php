@@ -4,23 +4,26 @@ require_once "database.php";
 require_once "utilities.php";
 if (!isset($_SESSION["id"])) header("location: login.php");
 
-function htmlSelectDiv(string $label, array $options, string $selected) { ?>
+function htmlSelectDiv(string $label, array $options, string $selected, string $props = null) { ?>
     <div>
         <label for="<?php echo $label; ?>"><?php echo capitalise($label); ?></label>
-        <select name="<?php echo $label; ?>">
+        <select name="<?php echo $label; ?>" <?php echo $props;?>>
             <?php foreach ($options as $opt) htmlOption($opt, $selected); ?>
         </select>
     </div>
 <?php }
 
 function htmlAlertForm(array $alert) { 
-    global $mysqli; ?>
-    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="form alert">
+    global $mysqli; 
+    $html_id = "alert" . $alert["id"]; ?>
+    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
+        class="form alert" id="<?php echo $html_id; ?>"
+    >
         <?php
             // TODO: change to local government areas instead
             $regions = uniqueColumnValues($mysqli, "region");
             array_unshift($regions, "None");
-            htmlSelectDiv("location", $regions, $alert["location"]);
+            htmlSelectDiv("location", $regions, $alert["location"], "onchange=\"alertLocationChange('$html_id')\"");
             htmlSelectDiv("severity", uniqueColumnValues($mysqli, "severity"), $alert["severity"]);
             htmlSelectDiv("send_via", ["Email", "SMS"], $alert["via_email"] == 1 ? "Email" : "SMS");
         ?>
@@ -28,8 +31,6 @@ function htmlAlertForm(array $alert) {
         <button>Update Alert</button>
     </form>
 <?php }
-
-// TODO: ensure the alert id passed in is allowed to be modified by the user
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
