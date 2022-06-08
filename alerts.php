@@ -15,7 +15,7 @@ function htmlSelectDiv(string $label, array $options, string $selected, string $
 
 function htmlAlertForm(array $alert) { 
     global $mysqli; 
-    $html_id = "alert" . $alert["id"]; ?>
+    $html_id = uniqid("alert"); ?>
     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
         class="form alert" id="<?php echo $html_id; ?>"
     >
@@ -28,30 +28,43 @@ function htmlAlertForm(array $alert) {
             htmlSelectDiv("send_via", ["Email", "SMS"], $alert["via_email"] == 1 ? "Email" : "SMS");
         ?>
         <input type="hidden" name="alert_id" value="<?php echo $alert["id"]; ?>">
-        <button>Update Alert</button>
+        <button id="<?php echo $html_id; ?>-button">Update Alert</button>
     </form>
+    <script>
+        {
+            const id = "<?php echo $html_id;?>";
+            alertLocationChange(id);
+            document.getElementById(id + "-button").addEventListener("click", e => {
+                e.preventDefault();
+                if (confirm("Are you sure you want to update this alert?")) document.getElementById(id).submit();
+            });
+        }
+    </script>
 <?php }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    if ($_POST["alert_id"] == "None") {
-        $sql = "INSERT INTO alerts (user_id, location, severity, via_email) VALUES ({$_SESSION["id"]}, ?, ?, ?)";
+    if ($_POST["location"] == "None") {
+        $mysqli->query("DELETE FROM alerts WHERE id = " . $_POST["alert_id"]);
     } else {
-        $sql = "SELECT id FROM alerts WHERE user_id = {$_SESSION["id"]}";
-        $alert_ids = array_column($mysqli->query($sql)->fetch_all(), 0);
-        if (!in_array($_POST["alert_id"], $alert_ids)) die("You do not have permission to alter this alert");
-        $sql = "UPDATE alerts SET location=?, severity=?, via_email=? WHERE id=" . $_POST["alert_id"];
+        if ($_POST["alert_id"] == "None") {
+            $sql = "INSERT INTO alerts (user_id, location, severity, via_email) VALUES ({$_SESSION["id"]}, ?, ?, ?)";
+        } else {
+            $sql = "SELECT id FROM alerts WHERE user_id = {$_SESSION["id"]}";
+            $alert_ids = array_column($mysqli->query($sql)->fetch_all(), 0);
+            if (!in_array($_POST["alert_id"], $alert_ids)) die("You do not have permission to alter this alert");
+            $sql = "UPDATE alerts SET location=?, severity=?, via_email=? WHERE id=" . $_POST["alert_id"];
+        }
+    
+        if ($stmt = $mysqli->prepare($sql)) {
+            $via_email = $_POST["send_via"] == "Email";
+    
+            // Bind variables to the prepared statement as parameters
+            $stmt->bind_param("ssi", $_POST["location"], $_POST["severity"], $via_email);
+            if(!($stmt->execute())) echo "Oops! Something went wrong. Please try again later.";
+            $stmt->close();
+        }
     }
-
-    if ($stmt = $mysqli->prepare($sql)) {
-        $via_email = $_POST["send_via"] == "Email";
-
-        // Bind variables to the prepared statement as parameters
-        $stmt->bind_param("ssi", $_POST["location"], $_POST["severity"], $via_email);
-        if(!($stmt->execute())) echo "Oops! Something went wrong. Please try again later.";
-        $stmt->close();
-    }
-
 }
 
 $alerts = $mysqli->query("SELECT * FROM alerts WHERE user_id = {$_SESSION["id"]}");

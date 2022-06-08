@@ -80,6 +80,7 @@
         <h2>Site navigation</h2>
         <ul>
             <li><a href=".">Home</a></li>
+            <li><a href="records.php">Search Crashes</a></li>
             <?php 
                 if (isset($is_admin) && $is_admin) { ?>
                     <li><a href="admin.php">Admin</a></li>

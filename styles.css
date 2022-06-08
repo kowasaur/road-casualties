@@ -6,6 +6,11 @@
     display: block;
 }
 
+.form > div > label > span {
+    color: red;
+    font-size: smaller;
+}
+
 .form > div > input {
     width: 25em;
 }

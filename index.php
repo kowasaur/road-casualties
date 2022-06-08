@@ -126,6 +126,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && in_array($_POST["location1"], $valid
                             </div>
                         </div>
                     </div>
+                    <div id="document-properties">
+                        <div class="box-sizing">
+                            Raw data available
+                            <a href="https://www.data.qld.gov.au/dataset/crash-data-from-queensland-roads/resource/3fc53539-d529-4c1d-85f8-6c92d9e06fc8">here</a>
+                            <br>
+                            <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0</a>
+                        </div>
+                    </div>
                     <?php require_once "components/feedback.html"; ?>
                 </div>
             </div>

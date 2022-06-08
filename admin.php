@@ -27,7 +27,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     fclose($file);
     $mysqli->close();
-    echo "<h1>uploaded $successes rows succesfully</h1>";
 }
 
 ?>
@@ -55,6 +54,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="article">
                             <div class="box-sizing">
                                 <h1>Data Administration</h1>
+                                <?php 
+                                    if (isset($successes)) {
+                                        echo "<h2>Updated $successes rows succesfully</h2>";
+                                    }
+                                ?>
                                 <form method="post" enctype="multipart/form-data" class="form"
                                     action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                                 >
