@@ -2,6 +2,17 @@
 // TODO: server side validation and error handling
 session_start();
 require_once "database.php";
+require_once "utilities.php";
+
+function htmlTextInput(string $label, string $placeholder, ?string $value) { ?>
+    <div>
+        <label for="<?php echo $label; ?>"><?php echo capitalise($label); ?></label>
+        <input type="text" name="<?php echo $label; ?>" id="<?php echo $label; ?>"
+            placeholder="<?php echo $placeholder; ?>" 
+            value="<?php if (isset($value)) echo $value; ?>"
+        >
+    </div>
+<?php }
 
 function emptyToNull(string $str) {
     return empty($str) ? null : $str;
@@ -19,15 +30,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $sql = "INSERT INTO users (email, password, phone_number, first_name, last_name, address, is_admin) VALUES (?, ?, ?, ?, ?, ?, false)";
 
     if ($stmt = $mysqli->prepare($sql)) {
+        $pass_hash = password_hash($password, PASSWORD_BCRYPT);
         // Bind variables to the prepared statement as parameters
-        $stmt->bind_param("ssssss", $email, password_hash($password, PASSWORD_BCRYPT), $phone, $first_name, $last_name, $address);
+        $stmt->bind_param("ssssss", $email, $pass_hash, $phone, $first_name, $last_name, $address);
 
         if($stmt->execute()){
             $_SESSION["loggedin"] = true;
             $_SESSION["id"] = $mysqli->insert_id; // should be the id from auto increment
             header("location: alerts.php"); // Redirect to alerts page
-        } else{
-            echo "Oops! Something went wrong. Please try again later.";
+        } else {
+            $error = "An account with this email already exists.";
         }
 
         $stmt->close();
@@ -63,37 +75,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="box-sizing">
                                 <h1>Register</h1>
 
-                                <p>Create an account to receive alerts.</p>
-                                <p>Already have an account? Login <a href="login.php">here</a></p>
+                                <p>
+                                    Create an account by entering your details below and 
+                                    clicking register to receive alerts about new crashes.
+                                </p>
+                                <p>Already have an account? Login <a href="login.php">here</a>.</p>
 
                                 <form class="form" method="post" 
                                     action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                                 >
-                                    <?php require_once "components/credentials.html"; ?>
+                                    <?php 
+                                        if (isset($error)) echo "<h3 class=\"error\">$error</h3>";
+                                        require_once "components/credentials.php"; 
+                                    ?>
 
                                     <div>
                                         <label for="phone">Mobile Number</label>
-                                        <!-- phone number can have spaces or - between the nums -->
+                                        <!-- phone number can have spaces or hyphens between the nums -->
                                         <input type="tel" name="phone" id="phone" 
                                             placeholder="0414 123 456"
                                             pattern="[0-9]{4}[- ]*[0-9]{3}[- ]*[0-9]{3}" 
+                                            value="<?php if (isset($phone)) echo $phone; ?>" 
                                         />
                                     </div>
 
-                                    <div>
-                                        <label for="first_name">First Name</label>
-                                        <input type="text" name="first_name" id="first_name">
-                                    </div>
-
-                                    <div>
-                                        <label for="last_name">Last Name</label>
-                                        <input type="text" name="last_name" id="last_name">
-                                    </div>
-
-                                    <div>
-                                        <label for="address">Address</label>
-                                        <input type="text" name="address" id="address">
-                                    </div>
+                                    <?php
+                                        htmlTextInput("first_name", "John", $first_name);
+                                        htmlTextInput("last_name", "Smith", $last_name);
+                                        htmlTextInput("address", "21 Place Street, Cool Suburb", $address);
+                                    ?>
                                     
                                     <button>Register</button>
                                 </form>

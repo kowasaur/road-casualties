@@ -25,11 +25,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $_SESSION["id"] = $id;    
                         header("location: index.php");
                     } else {
-                        echo "wrong password";
+                        $error = "Password Incorrect.";
                     }
                 }
             } else {
-                echo "user doesn't exist";
+                $error = "A user with the email $email does not exist.";
             }
             $stmt->close();
         }
@@ -64,12 +64,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             <div class="box-sizing">
                                 <h1>Login</h1>
 
-                                <p>Don't have an account? Register <a href="register.php">here</a></p>
+                                <p>Enter your details to login to your account.</p>
+                                <p>Don't have an account? Register <a href="register.php">here.</a></p>
 
                                 <form class="form" method="post" 
                                     action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                                 >
-                                    <?php require_once "components/credentials.html"; ?>
+                                    <?php
+                                        if (isset($error)) echo "<h3 class=\"error\">$error</h3>";
+                                        require_once "components/credentials.php"; 
+                                    ?>
                                     <button>Login</button>
                                 </form>
                                 

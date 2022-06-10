@@ -96,6 +96,13 @@ $alerts = $mysqli->query("SELECT * FROM alerts WHERE user_id = {$_SESSION["id"]}
                             <div class="box-sizing">
                                 <h1>Alert Configuration</h1>
 
+                                <p>
+                                    Here you can sign up for and configure alerts for recent crashes. 
+                                    Choose a location and then select the minimum severity level for 
+                                    you to be notified. You can also choose whether to receive the alerts
+                                    via email or SMS.
+                                </p>
+
                                 <?php
                                     $alerts_count = 0;
                                     while ($alert = $alerts->fetch_assoc()) {
@@ -108,8 +115,7 @@ $alerts = $mysqli->query("SELECT * FROM alerts WHERE user_id = {$_SESSION["id"]}
                                             "via_email"=>1, "id"=>"None"
                                         ]);
                                     }
-                                ?>
-                                
+                                ?> 
                             </div>
                         </div>
                     </div>

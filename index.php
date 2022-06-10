@@ -51,7 +51,7 @@ function jsChart(string $group, bool $is_line = false) {
 // Echo the html for a chart
 function htmlChart(string $group) { ?> 
     <div class="section">
-        <h3>Road Casualties by <?php echo capitalise($group); ?></h3>
+        <h2>Road Casualties by <?php echo capitalise($group); ?></h2>
         <canvas id="<?php echo $group; ?>-chart"></canvas>
     </div> 
 <?php }
@@ -63,7 +63,7 @@ function htmlTotal(string $location) {
     $sql = "SELECT SUM(amount) FROM road_casualties";
     if ($location != "Queensland") $sql .= " WHERE region = '$location'";
     $total = $mysqli->query($sql)->fetch_assoc()["SUM(amount)"]; ?>
-    <h2>Total <?php echo $location; ?> Casualties: <?php echo $total; ?></h2> <?php
+    <h3>Total <?php echo $location; ?> Casualties: <?php echo $total; ?></h3> <?php
 }
 
 $regions = uniqueColumnValues($mysqli, "region");
@@ -101,6 +101,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && in_array($_POST["location1"], $valid
                         <div class="article">
                             <div class="box-sizing">
                                 <h1>Queensland Road Casualties</h1>
+                                <p>
+                                    Select a location from the dropdown (and optionally another to 
+                                    compare) and then click <i>Select Locations</i> to get road
+                                    casualty data about that location.
+                                </p>
                                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">                                
                                     <select name="location1" id="location1">
                                         <?php locationOptions($regions, $location1); ?>

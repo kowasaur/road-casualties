@@ -25,6 +25,10 @@
     margin-right: 3px;
 }
 
+.error {
+    color: red;
+}
+
 .alert {
     border: 1px solid #888888;
     margin: 1em 0;

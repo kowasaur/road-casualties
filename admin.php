@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $file = fopen($path, "r");
     $successes = 0;
 
-    fgets($file); // ignore the headers for now
+    fgets($file); // ignore the headers
     set_time_limit(400); // stop timing out
 
     if (isset($_POST["wipe"])) $mysqli->query("DELETE FROM road_casualties");
@@ -54,6 +54,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="article">
                             <div class="box-sizing">
                                 <h1>Data Administration</h1>
+                                <p>
+                                    Here you can upload a CSV of road casualties. The first row must be the headers
+                                    and the other rows must be in this order: year, region, severity, age group, gender, 
+                                    road user type, amount. Check "Replace Table" to replace the whole table with your
+                                    CSV instead of updating the table with the new data.
+                                </p>
                                 <?php 
                                     if (isset($successes)) {
                                         echo "<h2>Updated $successes rows succesfully</h2>";
@@ -62,10 +68,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <form method="post" enctype="multipart/form-data" class="form"
                                     action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>"
                                 >
-                                    <div><input type="file" name="csv" id="csv" required /></div>
+                                    <div><input type="file" name="csv" id="csv" required accept=".csv"/></div>
                                     <div><div>
                                         <input type="checkbox" name="wipe" id="wipe" />
-                                        <label for="wipe">Replace Database</label>
+                                        <label for="wipe">Replace Table</label>
                                     </div></div>
                                     <div>
                                         <button>Upload CSV</button>
