@@ -21,7 +21,6 @@ function emptyToNull(string $str) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST["email"]);
     $password = trim($_POST["password"]);
-    // https://stackoverflow.com/questions/33993461/php-remove-all-non-numeric-characters-from-a-string
     $phone = emptyToNull(preg_replace("/[^0-9]/", "", $_POST["phone"])); // only keep numbers in the string
     $first_name = emptyToNull(trim($_POST["first_name"]));
     $last_name = emptyToNull(trim($_POST["last_name"]));
